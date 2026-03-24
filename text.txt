@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	
+    <title>Simple Business Chat</title>
+    <style .timestamp {
+    display: block :root {
+    --primary-color: #0d9488;       /* Business Brand Color (Teal) */
+    --accent-color: #0f172a;        /* Dark Headers */
+    --bg-light: #f1f5f9;            /* Page Background */
+    --user-msg-bg: #0d9488;         /* User Bubble */
+    --bot-msg-bg: #ffffff;          /* Bot Bubble */
+    --text-main: #1e293b;           /* Dark Text */
+    --text-white: #ffffff;          /* Light Text */
+}
+
+body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: var(--bg-light); 
+    color: var(--text-main);
+}
+
+#chat-container { 
+    border: none;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); 
+}
+
+/* Update the bubbles to use variables */
+.sent { 
+    background-color: var(--user-msg-bg); 
+    color: var(--text-white); 
+    box-shadow: 0 2px 5px rgba(13, 148, 136, 0.2);
+}
+
+.received { 
+    background-color: var(--bot-msg-bg); 
+    border: 1px solid #e2e8f0;
+}
+
+button { 
+    background: var(--primary-color); 
+    font-weight: 600;
+    transition: transform 0.1s ease;
+}
+
+button:active { transform: scale(0.95); }
+;
+    font-size: 10px;
+    margin-top: 4px;
+    color: #888;
+}
+
+/* Right-align time for sent messages, left-align for received */
+.sent .timestamp { color: #e1f0ff; text-align: right; }
+.received .timestamp { text-align: left; }
+>
+	
+	
+        /* CSS: Styling the UI */
+        body { font-family: Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        #chat-container { width: 400px; height: 500px; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+        
+        #messages { flex: 1; padding: 20px; overflow-y: auto; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 10px; }
+        
+        /* Message Bubbles */
+        .message { padding: 8px 12px; border-radius: 15px; max-width: 70%; font-size: 14px; }
+        .sent { background-color: #0084ff; color: white; align-self: flex-end; }
+        
+        #input-area { display: flex; padding: 10px; background: #fff; }
+        input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 20px; outline: none; }
+        button { margin-left: 10px; padding: 8px 15px; background: #0084ff; color: white; border: none; border-radius: 20px; cursor: pointer; }
+        button:hover { background: #0073e6; }
+    </style /* Typing indicator style */
+#typing-indicator {
+    display: none; /* Hidden by default */
+    background-color: #e4e6eb;
+    padding: 8px 15px;
+    border-radius: 15px;
+    width: fit-content;
+    font-style: italic;
+    color: #65676b;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+/* Optional: Simple dot animation */
+.dot { animation: blink 1s infinite; margin: 0 2px; }
+@keyframes blink { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+ /* Styling for the Bot's messages (received) */
+.received {
+    background-color: #e4e6eb;
+    color: #050505;
+    align-self: flex-start; /* Aligns to the left */
+}
+>
+</head <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+>
+<body <audio id="notification-sound" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3" preload="auto"></audio>
+>
+
+<div id="chat-container"<div id="chat-container">
+    <div style="padding: 10px; text-align: right; background: #f8f9fa; border-bottom: 1px solid #eee;">
+        <button onclick="clearChat(<button onclick="downloadTranscript()" style="background: #28a745; font-size: 12px; padding: 5px 10px; margin-right: 5px;">Download History</button>
+)" style="background: #ff4d4d; font-size: 12px; padding: 5px 10px;">Clear Chat</button>
+    </div>
+
+    <div id="messages">
+        </div>
+    ...
+</div>
+>
+    <div id="messages">
+        </div>
+    <div id="input-area"<div id="input-area">
+    <input type="file" id="image-input" accept="image/*" style="display: none;" onchange="handleImage(this)">
+    <button onclick="document.getElementById('image-input').click()" style="background: #64748b; margin-right: 5px;">+</button>
+    
+    <input type="text" id="user-input" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+</div>
+<div id="messages">
+    <div id="typing-indicator">Bot is typing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+</div>
+>
+        <input type="text" id="user-input" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script const messageContainer = document.getElementById('messages');
+const userInput = document.getElementById('user-input');
+
+// 1. Initialize Chat: Load existing messages from storage on page load
+let chatHistory = JSON.parse(localStorage.getItem('myBusinessChat')) || [];
+renderHistory();
+
+function sendMessage() {
+    const text = userInput.value.trim();
+    if (text !== "") {
+        saveAndDisplay(text, 'sent');
+        userInput.value = "";
+
+        // Bot reply after 1 second
+        setTimeout(() => {
+            botReply(text);
+        }, 1000);
+    }
+}
+
+function botReply(userText) {
+    let replyText = "Thanks for reaching out! We'll be with you soon.";
+    if (userText.toLowerCase().includes("price")) {
+        replyText = "Our pricing starts at $10/month!";
+    }
+    
+    saveAndDisplay(replyText, 'received');
+}
+
+// 2. Save to localStorage and Display on screen
+function saveAndDisplay(text, type) {// Helper to get formatted time (e.g., 05:45 PM)
+function getTime() {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function saveAndDisplay(text, type, existingTime = null) {
+    // If we're loading from history, use the old time. If new, get current time.
+    const time = existingTime || getTime();
+    
+    // Save with time included
+    chatHistory.push({ text: text, type: type, time: time });
+    localStorage.setItem('myBusinessChat', JSON.stringify(chatHistory));
+    
+    createMessageUI(text, type, time);
+}
+
+function createMessageUI(text, type, time) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', type);
+    
+    // Build the internal HTML with the text and the timestamp
+    msgDiv.innerHTML = `
+        ${text}
+        <span class="timestamp">${time}</span>
+    `;
+    
+    // Keep typing indicator at the bottom
+    messageContainer.insertBefore(msgDiv, typingIndicator);
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+}
+
+// Update the renderHistory function to pass the saved time
+function renderHistory() {
+    chatHistory.forEach(msg => {
+        createMessageUI(msg.text, msg.type, msg.time);
+    });
+}
+
+    // Add to our history array
+    chatHistory.push({ text: text, type: type });
+    
+    // Save the array to the browser memory
+    localStorage.setItem('myBusinessChat', JSON.stringify(chatHistory));
+    
+    // Create the UI element
+    createMessageUI(text, type);
+}
+
+// 3. Helper to draw messages in the HTML
+function createMessageUI(text, type) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', type);
+    msgDiv.textContent = text;
+    messageContainer.appendChild(msgDiv);
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+}
+
+// 4. Function to render all messages from history
+function renderHistory() {
+    chatHistory.forEach(msg => {
+        createMessageUI(msg.text, msg.type);
+    });
+}
+
+// Enter key support
+userInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+>
+    // JavaScript: Handling the Logic
+    const messageContainer = document.getElementById('messages');
+    const userInput = document.getElementById('user-input'const typingIndicator = document.getElementById('typing-indicator');
+
+function sendMessage() {
+    const text = userInput.value.trim();
+    if (text !== "") {
+        saveAndDisplay(text, 'sent');
+        userInput.value = "";
+
+        // --- NEW: Show typing indicator ---
+        showTyping(true);
+
+        setTimeout(() => {
+            // --- NEW: Hide typing indicator before replying ---
+            showTyping(false);
+            botReply(text);
+        }, 2000); // 2 seconds feels more realistic
+    }
+}
+
+// Helper to toggle the indicator and scroll it into view
+function showTyping(isTyping) {
+    typingIndicator.style.display = isTyping ? 'block' : 'none';
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+}
+
+// Note: Ensure your createMessageUI function appends messages 
+// BEFORE the typing indicator so the indicator stays at the bottom.
+function createMessageUI(text, type) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', type);
+    msgDiv.textContent = text;
+    
+    // Use 'insertBefore' to keep typing indicator at the very bottom
+    messageContainer.insertBefore(msgDiv, typingIndicator);
+    
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+}
+);
+
+    function sendMessage(// Function to reset the entire conversation
+function clearChat() {
+    // 1. Ask the user for confirmation
+    if (confirm("Are you sure you want to delete all messages?")) {
+        
+        // 2. Clear the variable in memory
+        chatHistory = [];
+        
+        // 3. Remove the data from the browser's storage
+        localStorage.removeItem('myBusinessChat');
+        
+        // 4. Clear the UI (remove all child elements from the messages div)
+        messageContainer.innerHTML = "";
+        
+        // 5. Optional: Add a fresh welcome message
+        saveAndDisplay("Chat cleared. How can I help you now?", 'received');
+    }
+}
+) {// Function to handle the selected image file
+function handleImage(input) {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Image = e.target.result; // This is the image data
+            saveAndDisplay(base64Image, 'sent', null, true); // Added 'true' for isImage flag
+            
+            // Bot reaction to an image
+            showTyping(true);
+            setTimeout(() => {
+                showTyping(false);
+                saveAndDisplay("Got the image! Thanks for sharing.", 'received');
+            }, 1500);
+        };
+        reader.readAsDataURL(file); // Convert image to string
+    }
+}
+
+// Update saveAndDisplay to handle an optional 'isImage' flag
+function saveAndDisplay(text, type, existingTime = null, isImage = false) {
+    const time = existingTime || getTime();
+    chatHistory.push({ text: text, type: type, time: time, isImage: isImage });
+    localStorage.setItem('myBusinessChat', JSON.stringify(chatHistory));
+    createMessageUI(text, type, time, isImage);
+}
+
+// Updated UI function to render either text OR an image
+function createMessageUI(content, type, time, isImage = false) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', type);
+    
+    // Check if we should render an <img> tag or plain text
+    const displayContent = isImage 
+        ? `<img src="${content}" style="max-width: 100%; border-radius: 8px; margin-bottom: 5px;">` 
+        : content;
+
+    msgDiv.innerHTML = `
+        ${displayContent}
+        <span class="timestamp">${time}</span>
+    `;
+    
+    messageContainer.insertBefore(msgDiv, typingIndicator);
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+}
+
+// Update renderHistory to pass the isImage flag
+function renderHistory() {
+    chatHistory.forEach(msg => {
+        createMessageUI(msg.text, msg.type, msg.time, msg.isImage);
+    });
+}
+
+        const text = userInput.value.trim();
+        
+        if (text !== "") {
+            // 1. Create a new message element
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', 'sent');
+            msgDiv.textContent = text;
+            
+            // 2. Add it to the container
+            messageContainer.appendChild(msgDiv);
+            
+            // 3. Clear the input and scroll to bottom
+            userInput.value = "";
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+    }
+
+    // Allow pressing "Enter" to send
+    userInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    });
+</script const messageContainer = function downloadTranscript() {
+    if (chatHistory.length === 0) {
+        alert("No messages to download!");
+        return;
+    }
+
+    // 1. Format the text content
+    let transcript = "--- Business Chat Transcript ---\n\n";
+    
+    chatHistory.forEach(msg => {
+        const sender = msg.type === 'sent' ? "User" : "Bot";
+        transcript += `[${msg.time}] ${sender}: ${msg.text}\n`;
+    });
+
+    // 2. Create a Blob (a virtual file)
+    const blob = new Blob([transcript], { type: 'text/plain' });
+    
+    // 3. Create a temporary download link
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'chat-transcript.txt';
+    
+    // 4. Trigger the download and clean up
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Revoke the URL to save memory
+    URL.revokeObjectURL(link.href);
+}
+document.getElementById('messages');
+const userInput = document.getElementById('user-input');
+
+// Main function to send user message
+function sendMessage() {
+    const text = userInput.value.trim();
+    
+    if (text !== "") {
+        // User Message
+        createMessage(text, 'sent');
+        userInput.value = "";
+
+        // Trigger Bot Response after 1 second
+        setTimeout(() => {
+            botReply(text);
+        }, 1000);
+    }
+}
+
+// Helper function to create and append message bubbles
+function createMessage(text, type) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', type);
+    msgDiv.textContent = text;
+    messageContainer.appendChild(msgDiv);
+    
+    // Auto-scroll to the latest message
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+}
+
+// Logic for the Bot's brain
+function botReply(userText) const notificationSound = document.getElementById('notification-sound');
+
+function botReply(userText) {
+    let replyText = "Thanks for reaching out! We'll be with you soon.";
+    
+    // Simple logic for our bot
+    if (userText.toLowerCase().includes("price")) {
+        replyText = "Our pricing starts at $10/month!";
+    }
+
+    // --- NEW: Play the sound ---
+    // We wrap it in a 'try/catch' because some browsers block 
+    // audio unless the user has clicked something first.
+    try {
+        notificationSound.play();
+    } catch (err) {
+        console.log("Audio playback stayed quiet until user interaction.");
+    }
+
+    saveAndDisplay(replyText, 'received');
+}
+ {
+    let replyText = "Thanks for reaching out! A member of our team will be with you shortly.";
+    
+    // Simple keyword detection
+    if (userText.toLowerCase().includes("price")) {
+        replyText = "Our pricing starts at $10/month. Check our website for details!";
+    } else if (userText.toLowerCase().includes("hello")) {
+        replyText = "Hi there! How can I help your business today?";
+    }
+
+    createMessage(replyText, 'received');
+}
+
+// "Enter" key support
+userInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+>
+
+</body>
+</html>
+	◦	
